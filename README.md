@@ -41,11 +41,13 @@ this to `containerClass = Nothing` until you need it.
 
 ## Building
 
+With [node-test-runner](https://github.com/rtfeldman/node-test-runner) installed,
+
 ```
 make
 ```
 
-...will run the whole build and test suite.
+will run the whole build and test suite.
 
 ## Credits
 
