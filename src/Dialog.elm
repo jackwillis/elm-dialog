@@ -3,6 +3,7 @@ module Dialog exposing (Config, view, map, mapMaybe)
 {-| Elm Modal Dialogs.
 
 @docs Config, view, map, mapMaybe
+
 -}
 
 import Exts.Html.Bootstrap exposing (..)
@@ -45,7 +46,6 @@ right at the top of the DOM tree, like so:
             )
         ]
 
-
 It's then up to you to replace `model.shouldShowDialog` with whatever
 logic should cause the dialog to be displayed, and to handle an
 `AcknowledgeDialog` message with whatever logic should occur when the user
@@ -60,6 +60,21 @@ view maybeConfig =
     let
         displayed =
             isJust maybeConfig
+
+        maybeContainerId =
+            maybeConfig |> Maybe.andThen .containerId
+
+        ariaAttributes =
+            case maybeContainerId of
+                Nothing ->
+                    []
+
+                Just id ->
+                    [ attribute "role" "dialog"
+                    , Html.Attributes.id id
+                    , attribute "aria-labelledby" (id ++ "_header")
+                    , attribute "aria-describedby" (id ++ "_body")
+                    ]
     in
         div
             (case
@@ -87,16 +102,16 @@ view maybeConfig =
                     ]
                  ]
                 )
-                [ div [ class "modal-dialog" ]
+                [ div ((class "modal-dialog") :: ariaAttributes)
                     [ div [ class "modal-content" ]
                         (case maybeConfig of
                             Nothing ->
                                 [ empty ]
 
                             Just config ->
-                                [ wrapHeader config.closeMessage config.header
-                                , maybe empty wrapBody config.body
-                                , maybe empty wrapFooter config.footer
+                                [ wrapHeader config
+                                , wrapBody config
+                                , wrapFooter config
                                 ]
                         )
                     ]
@@ -105,33 +120,60 @@ view maybeConfig =
             ]
 
 
-wrapHeader : Maybe msg -> Maybe (Html msg) -> Html msg
-wrapHeader closeMessage header =
+wrapHeader : Config msg -> Html msg
+wrapHeader { closeMessage, containerId, header } =
     if closeMessage == Nothing && header == Nothing then
         empty
     else
-        div [ class "modal-header" ]
-            [ maybe empty closeButton closeMessage
-            , Maybe.withDefault empty header
-            ]
+        let
+            ariaAttributes =
+                case containerId of
+                    Nothing ->
+                        []
+
+                    Just id ->
+                        [ Html.Attributes.id (id ++ "_header") ]
+        in
+            div ((class "modal-header") :: ariaAttributes)
+                [ maybe empty closeButton closeMessage
+                , Maybe.withDefault empty header
+                ]
 
 
 closeButton : msg -> Html msg
 closeButton closeMessage =
-    button [ class "close", onClick closeMessage ]
+    button [ class "close", onClick closeMessage, attribute "aria-label" "close" ]
         [ text "x" ]
 
 
-wrapBody : Html msg -> Html msg
-wrapBody body =
-    div [ class "modal-body" ]
-        [ body ]
+wrapBody : Config msg -> Html msg
+wrapBody { containerId, body } =
+    case body of
+        Nothing ->
+            empty
+
+        Just bodyBody ->
+            let
+                ariaAttributes =
+                    case containerId of
+                        Nothing ->
+                            []
+
+                        Just id ->
+                            [ Html.Attributes.id (id ++ "_body") ]
+            in
+                div ((class "modal-body") :: ariaAttributes)
+                    [ bodyBody ]
 
 
-wrapFooter : Html msg -> Html msg
-wrapFooter footer =
-    div [ class "modal-footer" ]
-        [ footer ]
+wrapFooter : Config msg -> Html msg
+wrapFooter { footer } =
+    case footer of
+        Nothing ->
+            empty
+
+        Just footerBody ->
+            div [ class "modal-footer" ] [ footerBody ]
 
 
 backdrop : Maybe (Config msg) -> Html msg
@@ -148,18 +190,22 @@ Use only the ones you want and set the others to `Nothing`.
 
 The `closeMessage` is an optional `Signal.Message` we will send when the user
 clicks the 'X' in the top right. If you don't want that X displayed, use `Nothing`.
+
+The `id` is an optional element id.
+This is required if you want to use the `aria-labelledby` and `aria-describedby` properties.
+
 -}
 type alias Config msg =
     { closeMessage : Maybe msg
     , containerClass : Maybe String
+    , containerId : Maybe String
     , header : Maybe (Html msg)
     , body : Maybe (Html msg)
     , footer : Maybe (Html msg)
     }
 
 
-{-|
-This function is useful when nesting components with the Elm
+{-| This function is useful when nesting components with the Elm
 Architecture. It lets you transform the messages produced by a
 subtree.
 -}
@@ -167,6 +213,7 @@ map : (a -> b) -> Config a -> Config b
 map f config =
     { closeMessage = Maybe.map f config.closeMessage
     , containerClass = config.containerClass
+    , containerId = config.containerId
     , header = Maybe.map (Html.map f) config.header
     , body = Maybe.map (Html.map f) config.body
     , footer = Maybe.map (Html.map f) config.footer

@@ -1,5 +1,8 @@
 # Elm Dialog - A Modal Dialog Widget for Elm
 
+**This is a fork of [krisajenkins/elm-dialog](https://github.com/krisajenkins/elm-dialog)
+which aims to support [WAI-ARIA](https://www.w3.org/WAI/intro/aria).**
+
 Elm modal dialog boxes that fits in neatly with the Elm architecture.
 
 ## Aims
@@ -25,7 +28,7 @@ See the `examples/` directory for two fully-worked examples:
 From your top-level directory - the one with `elm-package.json` in - call:
 
 ```
-$ elm package install krisajenkins/elm-dialog
+$ elm package install jackwillis/elm-dialog
 ```
 
 ## Usage
