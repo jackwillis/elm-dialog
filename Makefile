@@ -6,5 +6,6 @@ dist/%.html: $(shell find src examples -type f -name '*.elm' -o -name '*.js') di
 dist:
 	@mkdir $@
 
+.PHONY: test
 test:
-    elm-test
+	elm-test
