@@ -5,6 +5,21 @@ which aims to support [WAI-ARIA](https://www.w3.org/WAI/intro/aria).**
 
 Elm modal dialog boxes that fits in neatly with the Elm architecture.
 
+## API Differences from krisajenkins/elm-dialog
+
+The `containerId` field is added to `Dialog.Config`:
+
+```elm
+type alias Config msg =
+    { closeMessage : Maybe msg
+    , containerClass : Maybe String
+    , containerId : Maybe String
+    , header : Maybe (Html msg)
+    , body : Maybe (Html msg)
+    , footer : Maybe (Html msg)
+    }
+```
+
 ## Aims
 
 * ✓ Fit in neatly with the Elm architecture.

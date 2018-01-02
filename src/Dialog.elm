@@ -191,7 +191,7 @@ Use only the ones you want and set the others to `Nothing`.
 The `closeMessage` is an optional `Signal.Message` we will send when the user
 clicks the 'X' in the top right. If you don't want that X displayed, use `Nothing`.
 
-The `id` is an optional element id.
+The `containerId` is an optional element id.
 This is required if you want to use the `aria-labelledby` and `aria-describedby` properties.
 
 -}
